@@ -17,6 +17,7 @@ public class TCPServer {
             System.out.println("*** Servidor ***");
             System.out.println("*** Inicio - porta de escuta (listening): " + porta);
             while (true) {
+                //espera uma requisição
                 Socket cliente = escuta.accept();
                 System.out.println("*** Socket de escuta (listen): " + escuta.getLocalSocketAddress().toString());
                 System.out.println("*** Conexao aceita de (remoto): " + cliente.getRemoteSocketAddress().toString());
@@ -42,6 +43,7 @@ class Conexao extends Thread {
             ent = new DataInputStream(cliente.getInputStream());
             sai = new DataOutputStream(cliente.getOutputStream());
             idCliente = ent.readUTF();
+            //recebe o nome do arquivo
             nomeArquivo = ent.readUTF();
             this.start();
         } catch (IOException e) {
@@ -60,14 +62,17 @@ class Conexao extends Thread {
     
     public void run() {
         try {
+            //tenta encontrar o arquivo com o nome recebido
             arq = new BufferedReader(new FileReader(this.nomeArquivo));
         } catch (FileNotFoundException e) {
             System.err.println("Arquivo nao econtrado: \""+e.getMessage()+"\"");
+            //se nao for encontrado retorna uma mensagem pro cliente
             enviarMsg("!!! Erro ao tentar abrir arquivo \""+e.getMessage()+"\"");
         }
         
         if (arq != null) {
             try {
+                //se ele for encontrado, o conteúdo é enviado pro cliente
                 String l = arq.readLine();
                 while (l != null) {
                     enviarMsg(l);
